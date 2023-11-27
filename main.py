@@ -5,7 +5,9 @@ import psycopg_pool
 from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ContentType
 from aiogram.filters import Command
+from aiogram.types import BotCommand, BotCommandScopeDefault
 
+from core.handlers.cart import clear_cart, send_invoice, pre_checkout_query, buy_complete
 from core.handlers.menu_planning import get_categories, management, get_cart
 from core.middlewares.db_middlewares import DbSession
 
@@ -13,11 +15,23 @@ from core.settings import Bots, Settings, Db, settings
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 
+async def my_command(bot: Bot):
+    command = [
+        BotCommand(
+            command='start',
+            description='Бошлаш'
+        )
+    ]
+    await bot.set_my_commands(command, BotCommandScopeDefault())
+
+
 async def start_bot(bot: Bot):
+    await my_command(bot)
     await bot.send_message(chat_id=settings.bots.admin_id, text='Bot is started!')
 
 
 async def stop_bot(bot: Bot):
+    await my_command(bot)
     await bot.send_message(chat_id=settings.bots.admin_id, text='Bot is stoped!')
 
 
@@ -42,7 +56,11 @@ async def run_bot():
     dp.callback_query.middleware(
         DbSession(create_pool(settings.db.user, settings.db.host, settings.db.password, settings.db.db)))
 
-    dp.message.register(get_cart, F.text =='Саватча')
+    dp.message.register(buy_complete, F.content_type == ContentType.SUCCESSFUL_PAYMENT)
+    dp.pre_checkout_query.register(pre_checkout_query)
+    dp.message.register(get_cart, F.text == 'Саватча')
+    dp.callback_query.register(clear_cart, F.data == 'clear_cart')
+    dp.callback_query.register(send_invoice, F.data == 'get_order')
     dp.callback_query.register(management)
     dp.message.register(get_categories, Command(commands=['start']))
 
