@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ContentType
 from aiogram.filters import Command
 
-from core.handlers.menu_planning import get_categories, management
+from core.handlers.menu_planning import get_categories, management, get_cart
 from core.middlewares.db_middlewares import DbSession
 
 from core.settings import Bots, Settings, Db, settings
@@ -42,6 +42,7 @@ async def run_bot():
     dp.callback_query.middleware(
         DbSession(create_pool(settings.db.user, settings.db.host, settings.db.password, settings.db.db)))
 
+    dp.message.register(get_cart, F.text =='Саватча')
     dp.callback_query.register(management)
     dp.message.register(get_categories, Command(commands=['start']))
 

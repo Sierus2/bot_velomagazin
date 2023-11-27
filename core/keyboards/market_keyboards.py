@@ -59,7 +59,7 @@ async def kb_get_items(request: Request, category, subcategory):
         text='Орқага',
         callback_data=f"back={category}|{subcategory}"
     )
-    new_list= [buttons]
+    new_list = [buttons]
     new_list.append([back_button])
     return InlineKeyboardMarkup(inline_keyboard=new_list)
 
@@ -88,3 +88,18 @@ async def kb_get_description(request: Request, product, category, subcategory):
     return text, keyboards
 
 
+def kb_get_order():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Тўлаш",
+                callback_data="get_order",
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Саватчани тозалаш",
+                callback_data="clear_cart",
+            ),
+        ]
+    ])
