@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ContentType
 from aiogram.filters import Command
 
-
+from core.handlers.menu_planning import get_categories, management
 from core.middlewares.db_middlewares import DbSession
 
 from core.settings import Bots, Settings, Db, settings
@@ -42,7 +42,8 @@ async def run_bot():
     dp.callback_query.middleware(
         DbSession(create_pool(settings.db.user, settings.db.host, settings.db.password, settings.db.db)))
 
-
+    dp.callback_query.register(management)
+    dp.message.register(get_categories, Command(commands=['start']))
 
     # schedular = AsyncIOScheduler(timezone='Asia/Tashkent')
     # schedular.add_job(database_entry, 'cron', hour=11, minute=25, start_date='2023-11-23 09:00:00')
